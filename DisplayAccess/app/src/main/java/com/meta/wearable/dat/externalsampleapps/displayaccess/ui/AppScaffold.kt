@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.outlined.RemoveRedEye
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,11 +51,15 @@ import com.meta.wearable.dat.display.types.DisplayState
 import com.meta.wearable.dat.externalsampleapps.displayaccess.R
 import com.meta.wearable.dat.externalsampleapps.displayaccess.SampleApp
 import com.meta.wearable.dat.externalsampleapps.displayaccess.display.DisplayViewModel
+import com.meta.wearable.dat.externalsampleapps.displayaccess.music.MusicRecognitionViewModel
+import com.meta.wearable.dat.externalsampleapps.displayaccess.music.MusicRecognitionViewModelFactory
+import com.meta.wearable.dat.externalsampleapps.displayaccess.music.ui.MusicRecognitionScreen
 import com.meta.wearable.dat.externalsampleapps.displayaccess.wearables.WearablesViewModel
 
 object Routes {
   const val CONNECT = "connect"
   const val SAMPLES_LIST = "samples_list"
+  const val MUSIC_RECOGNITION = "music_recognition"
 }
 
 private val BackgroundColor = Color(0xFFF2F2F7)
@@ -70,6 +75,8 @@ fun AppScaffold(
   val navController = rememberNavController()
   val wearablesState by wearablesViewModel.uiState.collectAsStateWithLifecycle()
   val displayViewModel: DisplayViewModel = viewModel()
+  val musicViewModel: MusicRecognitionViewModel =
+      viewModel(factory = MusicRecognitionViewModelFactory(androidx.compose.ui.platform.LocalContext.current))
   val displayState by displayViewModel.uiState.collectAsStateWithLifecycle()
   val isCapabilityReady = displayState.displayState == DisplayState.STARTED
   val lastKnownSessionActive = remember { mutableStateOf(displayState.isSessionActive) }
@@ -86,6 +93,13 @@ fun AppScaffold(
 
   fun openSettings() {
     navController.navigate(Routes.CONNECT) {
+      popUpTo(Routes.CONNECT)
+      launchSingleTop = true
+    }
+  }
+
+  fun openMusicRecognition() {
+    navController.navigate(Routes.MUSIC_RECOGNITION) {
       popUpTo(Routes.CONNECT)
       launchSingleTop = true
     }
@@ -108,6 +122,7 @@ fun AppScaffold(
             currentRoute = currentRoute,
             samplesEnabled = true,
             onOpenSamples = ::openSamples,
+            onOpenMusic = ::openMusicRecognition,
             onOpenSettings = ::openSettings,
         )
       },
@@ -144,6 +159,12 @@ fun AppScaffold(
         )
       }
 
+
+      composable(Routes.MUSIC_RECOGNITION) {
+        DisposableEffect(Unit) { onDispose { musicViewModel.cancelRecognition() } }
+        MusicRecognitionScreen(viewModel = musicViewModel)
+      }
+
       SampleApp.entries.forEach { sample ->
         composable(sample.route) {
           SamplePlaceholderScreen(
@@ -161,6 +182,7 @@ private fun BottomTabBar(
     currentRoute: String,
     samplesEnabled: Boolean,
     onOpenSamples: () -> Unit,
+    onOpenMusic: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
   Row(
@@ -173,6 +195,16 @@ private fun BottomTabBar(
               .padding(8.dp),
       horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
+    BottomTab(
+        label = "Music",
+        icon = { Icon(Icons.Filled.MusicNote, contentDescription = null, modifier = Modifier.size(26.dp)) },
+        selected = currentRoute == Routes.MUSIC_RECOGNITION,
+        enabled = true,
+        activeContentColor = ActiveBlue,
+        inactiveContentColor = Color.Black.copy(alpha = 0.35f),
+        onClick = onOpenMusic,
+        modifier = Modifier.weight(1f),
+    )
     BottomTab(
         label = stringResource(R.string.samples_tab),
         icon = {

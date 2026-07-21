@@ -10,6 +10,7 @@ A sample app demonstrating how to connect to display-capable Meta AI glasses, st
 - Browse the sample entry screen even before the display capability is ready
 - Keep "Try it" disabled until the display capability is ready
 - Send a guided car maintenance experience to the glasses
+- Recognize nearby music using the phone microphone through a backend ACRCloud proxy
 - Open firmware and DAT glasses app update flows when required
 
 ## Prerequisites
@@ -32,7 +33,13 @@ Example `local.properties` values:
 github_token=YOUR_GITHUB_TOKEN
 mwdat_application_id=YOUR_APPLICATION_ID
 mwdat_client_token=YOUR_CLIENT_TOKEN
+music_recognition_proxy_url=http://10.0.2.2:8787
 ```
+
+`10.0.2.2` is reachable only from the Android Emulator. For a physical phone on the same
+trusted Wi-Fi network, replace it with the development computer's LAN address, for example
+`http://192.168.0.10:8787`. Use an HTTPS deployment when the phone cannot reach that computer
+directly.
 
 ## Building the app
 
@@ -61,6 +68,8 @@ mwdat_client_token=YOUR_CLIENT_TOKEN
 1. If a firmware update is required, tap "Update firmware" on the connection screen.
 1. If session start reports that the app on the glasses is outdated, tap "Update app on glasses" on the connection screen.
 
+The **Music** tab does not require glasses. Start `../music-recognition-proxy`, grant microphone permission, and tap **음악 인식**. Each tap records a fresh 12-second sample. A physical phone needs a backend URL reachable from the phone; use HTTPS outside a trusted local development network.
+
 ## Architecture
 
 - `app/src/main/java/.../MainActivity.kt`: App entry point and runtime permission handling
@@ -73,6 +82,7 @@ mwdat_client_token=YOUR_CLIENT_TOKEN
 - `BLUETOOTH_CONNECT`: Required to communicate with paired wearable devices
 - `BLUETOOTH`: Required for Bluetooth-based device discovery and connectivity on supported Android versions
 - `INTERNET`: Required by the DAT stack and related services used during wearable communication
+- `RECORD_AUDIO`: Required only when the user starts phone music recognition
 
 ## Troubleshooting
 

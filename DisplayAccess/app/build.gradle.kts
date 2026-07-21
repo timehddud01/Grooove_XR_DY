@@ -34,6 +34,12 @@ android {
     versionCode = 1
     versionName = "1.0"
 
+    buildConfigField(
+        "String",
+        "MUSIC_RECOGNITION_PROXY_URL",
+        "\"${localProperties.getProperty("music_recognition_proxy_url", "http://10.0.2.2:8787")}\"",
+    )
+
     manifestPlaceholders["mwdat_application_id"] =
         providers.gradleProperty("mwdat_application_id").orNull
             ?: localProperties.getProperty("mwdat_application_id", "")
@@ -41,6 +47,8 @@ android {
         providers.gradleProperty("mwdat_client_token").orNull
             ?: localProperties.getProperty("mwdat_client_token", "")
   }
+
+  buildFeatures { buildConfig = true }
 
   buildTypes {
     release {
@@ -69,4 +77,6 @@ dependencies {
   implementation(libs.androidx.navigation.compose)
   implementation(libs.mwdat.core)
   implementation(libs.mwdat.display)
+  testImplementation(libs.junit)
+  testImplementation(libs.kotlinx.coroutines.test)
 }

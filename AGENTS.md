@@ -1,3 +1,14 @@
+# 실행 지침
+
+md 파일 실행은 서브에이전트에 위임해서 실행한다.
+테스크 MD 파일 실행 후 예상되는 실행 결과, 사용자가 진행할 테스트 과정을 단계적으로 설명한다.
+테스크 실행 시 docs/checklist의 체크리스트도 체크한다.
+요청된 테스크만 실행하고, 추가적인 다른 테스크 파일은 임의로 실행하지 않는다.
+mds 폴더의 md 파일들은 별도로 직접 요청하기 전에는 임의로 참고하거나 실행하지 않는다.
+
+
+
+
 # Meta Wearables DAT SDK
 
 > Full API reference: https://wearables.developer.meta.com/llms.txt?full=true
